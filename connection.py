@@ -1,9 +1,6 @@
 
 from dotenv import dotenv_values
 from psycopg2 import pool
-import os
-from dotenv import dotenv_values
-from psycopg2 import pool
 
 secrets = dotenv_values(".env")
 
@@ -18,7 +15,7 @@ class ConnectionPool:
             password=secrets["DB_PASSWORD"]
         )
 
-    def get_connection(self):
+    def get_connection(self) -> pool.SimpleConnectionPool:
         return self.connection_pool.getconn()
 
     def return_connection(self, connection):
