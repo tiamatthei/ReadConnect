@@ -1,7 +1,13 @@
+*{
+    margin: 0;
+    padding: 0;
+}
 
 .container {
     display: flex;
     height: 100vh;
+    padding: 10px;
+    overflow: hidden;
 }
 
 .sidebar {
@@ -35,14 +41,7 @@
 .sidebar span {
     margin-left: 10px;
 }
-/**
-Orden de la búsqueda por autor, categoría, país y evaluación promedio del libro. 
-Resultados de búsqueda con título, imagen, autor, fecha de publicación categoría y descripción corta.
-Visualización de detalles del libro, incluyendo descripción completa, nombre, imágen, país, categoría, número de páginas, fecha de publicación, evaluación promedio y número de evaluaciones. 
-Agregación de reseñas y/o evaluación del libro de 1 a 5. 
-[EXTRA] Que tanto autores como categorías sean cliqueables y desplieguen una búsqueda por ese autor o categoría. (+10%)
 
- */
 
 .main-content {
     flex: 1;
@@ -75,4 +74,59 @@ button {
 
 button:hover {
     background-color: #005ae6;
+}
+
+.search-results {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    /*should have their own scroll*/
+    overflow-y: auto;
+    height: 70vh;
+}
+
+.search-results div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.search-results div img {
+    width: 200px;
+    height: 300px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.book-details {
+    margin-top: 40px;
+}
+
+.book-details select {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.book-details h2 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.book-details p {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.book-details span {
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+.book-details button {
+    margin-top: 20px;
 }

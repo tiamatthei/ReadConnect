@@ -9,6 +9,7 @@ function Home({ handleLogout }) {
 
   const handleSearch = async (event) => {
     const searchTerm = event.target.value;
+    setSearchTerm(searchTerm);
     if (searchTerm === "") {
       setSearchResults([]);
       return;
@@ -16,12 +17,10 @@ function Home({ handleLogout }) {
     if (searchTerm.length < 3) {
       return;
     }
-    setSearchTerm(searchTerm);
 
     try {
       const response = await fetch(`/books/search?query=${searchTerm}`);
       const results = await response.json();
-      console.log(results);
       const filteredResults = results.filter((book) => {
         const bookName = book.title.toLowerCase();
         //authors is an array with one or more authors, solve this by using .join()
@@ -44,6 +43,7 @@ function Home({ handleLogout }) {
         );
       });
       setSearchResults(filteredResults);
+      console.log(filteredResults);
     } catch (error) {
       console.error(error);
     }
@@ -96,20 +96,20 @@ function Home({ handleLogout }) {
               <p>{book.publicationDate}</p>
               <p>{book.category}</p>
               <p>{book.shortDescription}</p>
+              <div className="book-details">
+                {/* Display book details here */}
+                {/* Include book rating and reviews */}
+                <select onChange={handleRating}>
+                  <option value="">Calificar libro</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+              </div>
             </div>
           ))}
-        </div>
-        <div className="book-details">
-          {/* Display book details here */}
-          {/* Include book rating and reviews */}
-          <select onChange={handleRating}>
-            <option value="">Calificar libro</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select>
         </div>
       </div>
       <button onClick={handleLogout}>Logout</button>

@@ -54,7 +54,7 @@ class Book:
             JOIN categories c ON bc.category_id = c.id
         """
         if query:
-            sql_query += f" AND (b.title LIKE '%{query}%' OR b.short_description LIKE '%{query}%')"
+            sql_query += f" AND (b.title ILIKE '%{query}%' OR b.short_description ILIKE '%{query}%')"
         if author:
             sql_query += f" AND authors = '{author}'"
         if category:
@@ -69,7 +69,7 @@ class Book:
             sql_query += f" AND b.publication_date <= '{end_date}'"
 
         sql_query += " GROUP BY b.id, b.title, b.page_count, b.published_date, b.short_description, b.long_description, b.status, c.name"
-
+        print(sql_query)
         cursor.execute(sql_query)
         books = cursor.fetchall()
         cursor.close()
