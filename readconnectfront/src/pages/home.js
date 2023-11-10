@@ -9,6 +9,13 @@ function Home({ handleLogout }) {
 
   const handleSearch = async (event) => {
     const searchTerm = event.target.value;
+    if (searchTerm === "") {
+      setSearchResults([]);
+      return;
+    }
+    if (searchTerm.length < 3) {
+      return;
+    }
     setSearchTerm(searchTerm);
 
     try {
@@ -16,18 +23,6 @@ function Home({ handleLogout }) {
       const results = await response.json();
       console.log(results);
       const filteredResults = results.filter((book) => {
-        /**
-         * use the following fields to filter results
-         * 'title': self.title,
-            'authors': self.author,
-            'categories': self.category,
-            'publication_date': self.publication_date,
-            'pages': self.pages,
-            'short_description': self.short_description,
-            'long_description': self.long_description,
-            'read': self.read,
-            'wish_to_read': self.wish_to_read
-         */
         const bookName = book.title.toLowerCase();
         //authors is an array with one or more authors, solve this by using .join()
         const bookAuthor = book.authors.join().toLowerCase();
