@@ -1,3 +1,4 @@
+import uuid
 from flask import Blueprint, Flask, jsonify, request
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
@@ -16,29 +17,31 @@ login_manager = LoginManager()
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+
 @auth_bp.route('/register', methods=['POST'])
 def register():
     username = request.json.get('username')
     email = request.json.get('email')
     password = request.json.get('password')
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    
+
     user = User(username=username, email=email, password=hashed_password)
-    user.create()
+    user.create(username=username, email=email, password=hashed_password)
 
     return jsonify({'message': 'Usuario registrado con éxito.'}), 201
+
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
     email = request.json.get('email')
     password = request.json.get('password')
-    user = User.query.filter_by(email=email).first()
-    
+    user = User.login(email=email)
+
     if user and bcrypt.check_password_hash(user.password, password):
         login_user(user)
-        return jsonify({'message': 'Inicio de sesión exitoso.'}), 200
+        return jsonify({'message': 'Inicio de sesión exitoso.', "success": True}), 200
     else:
-        return jsonify({'message': 'Inicio de sesión fallido. Verifica tus credenciales.'}), 401
+        return jsonify({'message': 'Inicio de sesión fallido. Verifica tus credenciales.', "success": False}), 401
 
 @auth_bp.route('/profile')
 @login_required

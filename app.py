@@ -2,11 +2,15 @@ from flask import Flask, redirect, session, render_template
 
 # Flask app setup
 app = Flask(__name__)
-app.secret_key
+app.secret_key = 'secret'
 
 # Blueprints
-from auth import auth_bp
+from auth import auth_bp, login_manager
 app.register_blueprint(auth_bp)
+
+login_manager.login_view = 'auth.login'
+login_manager.init_app(app)
+
 from books import books_bp
 app.register_blueprint(books_bp)
 

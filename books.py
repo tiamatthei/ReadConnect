@@ -23,7 +23,9 @@ def search_books():
 
     # Realiza la búsqueda en la base de datos usando los parámetros
     books = Book.search(query=query, author=author, category=category, min_pages=min_pages, max_pages=max_pages, start_date=start_date, end_date=end_date)
-
+    #ordenad libros y que cada libro tenga un atributo de autor que sea una lista de autores y lo mismo para categorias
+    books = Book.sort(books)
+    
     return jsonify(books)
 
 @books_bp.route('/books/<int:book_id>')

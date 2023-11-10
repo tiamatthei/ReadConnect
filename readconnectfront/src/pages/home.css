@@ -1,0 +1,78 @@
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    background-color: #f5f5f5;
+    width: 200px;
+    padding: 20px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar li {
+    margin-bottom: 10px;
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    color: #333;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.sidebar a:hover {
+    color: #0077ff;
+}
+
+.sidebar span {
+    margin-left: 10px;
+}
+/**
+Orden de la búsqueda por autor, categoría, país y evaluación promedio del libro. 
+Resultados de búsqueda con título, imagen, autor, fecha de publicación categoría y descripción corta.
+Visualización de detalles del libro, incluyendo descripción completa, nombre, imágen, país, categoría, número de páginas, fecha de publicación, evaluación promedio y número de evaluaciones. 
+Agregación de reseñas y/o evaluación del libro de 1 a 5. 
+[EXTRA] Que tanto autores como categorías sean cliqueables y desplieguen una búsqueda por ese autor o categoría. (+10%)
+
+ */
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.main-content h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.main-content p {
+    font-size: 24px;
+    margin-bottom: 40px;
+}
+
+button {
+    background-color: #0077ff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #005ae6;
+}
