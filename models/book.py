@@ -57,9 +57,9 @@ class Book:
         if query:
             sql_query += f" AND (b.title ILIKE '%{query}%' OR b.short_description ILIKE '%{query}%')"
         if author:
-            sql_query += f" AND authors = '{author}'"
+            sql_query += f" AND a.name = '{author}'"
         if category:
-            sql_query += f" AND categories = '{category}'"
+            sql_query += f" AND c.name = '{category}'"
         if min_pages:
             sql_query += f" AND b.page_count >= {min_pages}"
         if max_pages:
@@ -115,6 +115,14 @@ class Book:
         books = [book.to_dict() for book in books]
 
         return books
+    
+    def mark_as_read(self):
+        conn = connection_pool.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE books SET status = 'read' WHERE id = %s", (self.id,))
+        conn.commit()
+        cursor.close()
+        connection_pool.return_connection(conn)
 
     def to_dict(self):
         # if any key is null, it will be replaced by N/A

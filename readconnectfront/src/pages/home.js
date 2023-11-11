@@ -2,14 +2,19 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaHome, FaUser, FaUsers } from "react-icons/fa";
 import "./home.css";
+import { BookCard } from "../components/bookCard";
 
 function Home({ handleLogout }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [searchType, setSearchType] = useState("");
 
   const handleSearch = async (event) => {
     const searchTerm = event.target.value;
+    const searchType = event.target.name;
+    setSearchType(searchType);
     setSearchTerm(searchTerm);
+
     if (searchTerm === "") {
       setSearchResults([]);
       return;
@@ -19,7 +24,7 @@ function Home({ handleLogout }) {
     }
 
     try {
-      const response = await fetch(`/books/search?query=${searchTerm}`);
+      const response = await fetch(`/books/search?${searchType}=${searchTerm}`);
       const results = await response.json();
       const filteredResults = results.filter((book) => {
         const bookName = book.title.toLowerCase();
@@ -28,8 +33,6 @@ function Home({ handleLogout }) {
         //categories is an array with one or more categories, solve this by using .join()
         const bookCategory = book.categories.join().toLowerCase();
         const bookPublicationDate = book.publication_date.toLowerCase();
-        console.log(bookPublicationDate);
-
         const bookPages = book.pages.toString();
         const bookShortDescription = book.short_description.toLowerCase();
         const bookLongDescription = book.long_description.toLowerCase();
@@ -45,7 +48,6 @@ function Home({ handleLogout }) {
         );
       });
       setSearchResults(filteredResults);
-      console.log(filteredResults);
     } catch (error) {
       console.error(error);
     }
@@ -84,45 +86,18 @@ function Home({ handleLogout }) {
       <div className="main-content">
         <h1>Exploración y Búsqueda de Libros</h1>
         <input
+          className="search-bar"
           type="text"
           placeholder="Buscar por nombre, autor, país, categoría, número de página, y rango de fecha de publicación"
           value={searchTerm}
-          onChange={handleSearch}
+          name="query"
+          onChange={(event) => {
+            handleSearch(event);
+          }}
         />
         <div className="search-results">
           {searchResults.map((book) => (
-            <div className="book-card" key={book.id}>
-              <div>
-                <img src={book.thumbnail_url} alt={book.title} />
-                {/* Display book authors here, its an array*/}
-              </div>
-              <div className="middle-section">
-                <h2>{book.title}</h2>
-                <p className="short-description">{book.short_description}</p>
-                <hr/>
-                <div className="middle-section">
-                  <div>
-                    {book.authors.map((author) => (
-                      <button className="author-btn">{author}</button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="book-details">
-                <p>{book.publication_date}</p>
-                <p>{book.categories}</p>
-                {/* Display book details here */}
-                {/* Include book rating and reviews */}
-                <select onChange={handleRating}>
-                  <option value="">Calificar libro</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                </select>
-              </div>
-            </div>
+            <BookCard book={book} handleSearch={handleSearch}></BookCard>
           ))}
         </div>
       </div>

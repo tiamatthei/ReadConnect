@@ -39,14 +39,16 @@ def login():
 
     if user and bcrypt.check_password_hash(user.password, password):
         login_user(user)
-        return jsonify({'message': 'Inicio de sesión exitoso.', "success": True}), 200
+        return jsonify({'message': 'Inicio de sesión exitoso.', "success": True, "user": user.to_dict()}), 200
     else:
         return jsonify({'message': 'Inicio de sesión fallido. Verifica tus credenciales.', "success": False}), 401
+
 
 @auth_bp.route('/profile')
 @login_required
 def profile():
     return jsonify({'message': 'Bienvenido, {}'.format(current_user.username)}), 200
+
 
 @auth_bp.route('/logout')
 @login_required

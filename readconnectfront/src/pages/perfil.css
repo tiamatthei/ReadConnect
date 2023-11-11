@@ -1,0 +1,100 @@
+
+.perfil {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 2rem;
+}
+
+.perfil h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.perfil-name {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.perfil-name label {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.perfil-name input {
+  padding: 0.5rem;
+  font-size: 1.2rem;
+  border: none;
+  border-bottom: 2px solid black;
+}
+
+.perfil-picture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.perfil-picture label {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.perfil-picture input[type="file"] {
+  display: none;
+}
+
+.perfil-picture input[type="file"] + label {
+  padding: 0.5rem;
+  font-size: 1.2rem;
+  border: none;
+  border-bottom: 2px solid black;
+  cursor: pointer;
+}
+
+.perfil-picture img {
+  margin-top: 1rem;
+  max-width: 200px;
+  max-height: 200px;
+}
+
+.perfil h2 {
+  font-size: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.perfil-categories {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.perfil-categories span {
+  padding: 0.5rem;
+  margin: 0.5rem;
+  font-size: 1.2rem;
+  background-color: #f2f2f2;
+  border-radius: 0.5rem;
+}
+
+.perfil-authors {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.perfil-authors span {
+  padding: 0.5rem;
+  margin: 0.5rem;
+  font-size: 1.2rem;
+  background-color: #f2f2f2;
+  border-radius: 0.5rem;
+}
+
+.perfil-book-details {
+  margin-top: 2rem;
+}
