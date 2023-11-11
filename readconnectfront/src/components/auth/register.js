@@ -40,7 +40,7 @@ class Register extends React.Component {
     render() {
         return (
             <div className="register">
-                <h2>Register</h2>
+                <h2>Registrarse</h2>
                 <form onSubmit={this.handleRegister}>
                     <label>
                         Nombre de Usuario:

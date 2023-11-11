@@ -48,7 +48,7 @@ const Login = ({ onLoginSuccess }) => {
 
   return (
     <div className="login">
-      <h2>Login</h2>
+      <h2>Iniciar Sesión</h2>
       <form onSubmit={handleLogin}>
         <label>
           Correo Electrónico:

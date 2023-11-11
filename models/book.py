@@ -4,7 +4,7 @@ connection_pool = ConnectionPool()
 
 
 class Book:
-    def __init__(self, id, title, authors, categories, publication_date, pages, short_description, long_description, read=False, wish_to_read=False):
+    def __init__(self, id, title, authors, categories, publication_date, pages, short_description, long_description, read=False, wish_to_read=False, thumbnail_url=None):
         self.id = id
         self.title = title
         self.authors = authors
@@ -15,6 +15,7 @@ class Book:
         self.long_description = long_description
         self.read = read
         self.wish_to_read = wish_to_read
+        self.thumbnail_url = thumbnail_url
 
     @classmethod
     def all(cls):
@@ -46,7 +47,7 @@ class Book:
         # Build the SQL query based on the provided parameters
         sql_query = """
         SELECT
-            b.id, b.title, b.page_count, b.published_date, b.short_description, b.long_description, b.status, c.name as categories, string_agg(a.name, '|') as authors
+            b.id, b.title, b.page_count, TO_CHAR(b.published_date::DATE, 'dd/mm/yyyy'), b.short_description, b.long_description, b.status, c.name as categories, string_agg(a.name, '|') as authors, b.thumbnail_url
         FROM books b
             JOIN book_authors ba ON b.id = ba.book_id
             JOIN authors a ON ba.author_id = a.id
@@ -69,12 +70,20 @@ class Book:
             sql_query += f" AND b.publication_date <= '{end_date}'"
 
         sql_query += " GROUP BY b.id, b.title, b.page_count, b.published_date, b.short_description, b.long_description, b.status, c.name"
-        print(sql_query)
         cursor.execute(sql_query)
         books = cursor.fetchall()
         cursor.close()
         connection_pool.return_connection(conn)
-        return [Book(id=book[0], title=book[1], authors=book[8], categories=book[7], publication_date=book[3], pages=book[2], short_description=book[4], long_description=book[5], read=book[6]) for book in books]
+        return [Book(id=book[0],
+                     title=book[1],
+                     authors=book[8],
+                     categories=book[7],
+                     publication_date=book[3],
+                     pages=book[2],
+                     short_description=book[4],
+                     long_description=book[5],
+                     read=book[6],
+                     thumbnail_url=book[9]) for book in books]
 
     def update(self):
         conn = connection_pool.get_connection()
@@ -108,7 +117,7 @@ class Book:
         return books
 
     def to_dict(self):
-        #if any key is null, it will be replaced by N/A
+        # if any key is null, it will be replaced by N/A
         for key in self.__dict__:
             if not self.__dict__[key]:
                 self.__dict__[key] = 'N/A'
@@ -121,5 +130,6 @@ class Book:
             'short_description': self.short_description,
             'long_description': self.long_description,
             'read': self.read,
-            'wish_to_read': self.wish_to_read
+            'wish_to_read': self.wish_to_read,
+            'thumbnail_url': self.thumbnail_url,
         }

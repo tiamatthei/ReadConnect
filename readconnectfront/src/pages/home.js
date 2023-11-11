@@ -28,6 +28,8 @@ function Home({ handleLogout }) {
         //categories is an array with one or more categories, solve this by using .join()
         const bookCategory = book.categories.join().toLowerCase();
         const bookPublicationDate = book.publication_date.toLowerCase();
+        console.log(bookPublicationDate);
+
         const bookPages = book.pages.toString();
         const bookShortDescription = book.short_description.toLowerCase();
         const bookLongDescription = book.long_description.toLowerCase();
@@ -89,14 +91,26 @@ function Home({ handleLogout }) {
         />
         <div className="search-results">
           {searchResults.map((book) => (
-            <div key={book.id}>
-              <h2>{book.title}</h2>
-              <img src={book.image} alt={book.name} />
-              <p>{book.author}</p>
-              <p>{book.publicationDate}</p>
-              <p>{book.category}</p>
-              <p>{book.shortDescription}</p>
+            <div className="book-card" key={book.id}>
+              <div>
+                <img src={book.thumbnail_url} alt={book.title} />
+                {/* Display book authors here, its an array*/}
+              </div>
+              <div className="middle-section">
+                <h2>{book.title}</h2>
+                <p className="short-description">{book.short_description}</p>
+                <hr/>
+                <div className="middle-section">
+                  <div>
+                    {book.authors.map((author) => (
+                      <button className="author-btn">{author}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
               <div className="book-details">
+                <p>{book.publication_date}</p>
+                <p>{book.categories}</p>
                 {/* Display book details here */}
                 {/* Include book rating and reviews */}
                 <select onChange={handleRating}>
@@ -112,7 +126,9 @@ function Home({ handleLogout }) {
           ))}
         </div>
       </div>
-      <button onClick={handleLogout}>Logout</button>
+      <button className="logout" onClick={handleLogout}>
+        Logout
+      </button>
     </div>
   );
 }
