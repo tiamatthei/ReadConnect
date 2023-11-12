@@ -95,7 +95,7 @@
   gap: 20px;
   /*should have their own scroll*/
   overflow-y: auto;
-  height: 80vh;
+  height: 70vh;
 }
 
 .search-results .book-card {
@@ -225,4 +225,32 @@
 
 .book-details button {
   margin-top: 20px;
+}
+
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.page-button {
+  background-color: #0077ff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  margin: 0 10px;
+}
+
+.page-button:hover {
+  background-color: #0055cc;
+}
+
+.page-info {
+  font-size: 14px;
+  margin: 0 10px;
 }

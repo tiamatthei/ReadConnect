@@ -3,6 +3,26 @@ import React, { useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 const BookCard = ({ book, handleSearch }) => {
+  
+  const addToWishlist = async (id) => {
+    const result = await fetch(`/books/${id}/wish`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await result.json();
+  };
+  const addToRead = async (id) => {
+    const result = await fetch(`/books/${id}/read`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await result.json();
+  };
+
   const [showDetails, setShowDetails] = useState(false);
   const [rating, setRating] = useState("");
   const [longDescription, setLongDescription] = useState(false);
@@ -57,8 +77,18 @@ const BookCard = ({ book, handleSearch }) => {
           //show buttons to allow to add to reading list, already read list, and wishlist
           showDetails ? (
             <div>
-              <button className="addto-button">Añadir a Lista de lectura </button>
-              <button className="addto-button">Añadir a leídos </button>
+              <button
+                className="addto-button"
+                onClick={() => addToWishlist(book.id)}
+              >
+                Añadir a Lista de lectura
+              </button>
+              <button
+                className="addto-button"
+                onClick={() => addToRead(book.id)}
+              >
+                Añadir a leídos
+              </button>
             </div>
           ) : null
         }

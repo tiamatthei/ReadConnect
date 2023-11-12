@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaHome, FaUser, FaUsers } from "react-icons/fa";
 import "./home.css";
@@ -8,15 +8,39 @@ function Home({ handleLogout }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchType, setSearchType] = useState("");
+  const [pagination, setPagination] = useState({});
+
+  async function getAllBooks(page, perPage) {
+    try {
+      const response = await fetch(`/books?page=${page}&per_page=${perPage}`);
+      const data = await response.json();
+      setPagination(data.pagination);
+      return data.books;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    async function fetchBooks() {
+      const books = await getAllBooks(1, 10);
+      setSearchResults(books);
+    }
+    fetchBooks();
+  }, []);
 
   const handleSearch = async (event) => {
     const searchTerm = event.target.value;
     const searchType = event.target.name;
+    const page = event.page;
+    const perPage = 10;
+
     setSearchType(searchType);
     setSearchTerm(searchTerm);
 
     if (searchTerm === "") {
-      setSearchResults([]);
+      const books = await getAllBooks(1, 10);
+      setSearchResults(books);
       return;
     }
     if (searchTerm.length < 3) {
@@ -24,30 +48,10 @@ function Home({ handleLogout }) {
     }
 
     try {
-      const response = await fetch(`/books/search?${searchType}=${searchTerm}`);
+      const response = await fetch(`/books/search?${searchType}=${searchTerm}&page=${page}&per_page=${perPage}`);
       const results = await response.json();
-      const filteredResults = results.filter((book) => {
-        const bookName = book.title.toLowerCase();
-        //authors is an array with one or more authors, solve this by using .join()
-        const bookAuthor = book.authors.join().toLowerCase();
-        //categories is an array with one or more categories, solve this by using .join()
-        const bookCategory = book.categories.join().toLowerCase();
-        const bookPublicationDate = book.publication_date.toLowerCase();
-        const bookPages = book.pages.toString();
-        const bookShortDescription = book.short_description.toLowerCase();
-        const bookLongDescription = book.long_description.toLowerCase();
-
-        return (
-          bookName.includes(searchTerm.toLowerCase()) ||
-          bookAuthor.includes(searchTerm.toLowerCase()) ||
-          bookCategory.includes(searchTerm.toLowerCase()) ||
-          bookPublicationDate.includes(searchTerm.toLowerCase()) ||
-          bookPages.includes(searchTerm) ||
-          bookShortDescription.includes(searchTerm.toLowerCase()) ||
-          bookLongDescription.includes(searchTerm.toLowerCase())
-        );
-      });
-      setSearchResults(filteredResults);
+      setPagination(results.pagination);
+      setSearchResults(results.books);
     } catch (error) {
       console.error(error);
     }
@@ -57,6 +61,24 @@ function Home({ handleLogout }) {
     const rating = event.target.value;
     // Perform book rating here and update book rating state
     // Rating should be from 1 to 5
+  };
+
+  const handlePageChange = async (event) => {
+    //make this function work for both getAllBooks and handleSearch
+    const page = event.target.value;
+    if (searchTerm === "") {
+      const books = await getAllBooks(page, pagination.per_page);
+      setSearchResults(books);
+      return;
+    }
+    if (searchTerm.length < 3) {
+      return;
+    }
+    const response = await fetch(`/books/search?${searchType}=${searchTerm}&page=${page}&per_page=${pagination.per_page}`);
+    const results = await response.json();
+    setPagination(results.pagination);
+    setSearchResults(results.books);
+
   };
 
   return (
@@ -92,14 +114,42 @@ function Home({ handleLogout }) {
           value={searchTerm}
           name="query"
           onChange={(event) => {
+            event.page = 1;
             handleSearch(event);
           }}
         />
         <div className="search-results">
-          {searchResults.map((book) => (
-            <BookCard book={book} handleSearch={handleSearch}></BookCard>
-          ))}
+        {searchResults.map((book) => (
+          <BookCard
+            key={book.id}
+            book={book}
+            handleSearch={handleSearch}
+          />
+        ))}
         </div>
+        {pagination.total_pages > 1 && (
+          <div className="pagination">
+            <button
+              className="page-button"
+              value={pagination.page - 1}
+              onClick={handlePageChange}
+              disabled={pagination.page === 1}
+            >
+              Previous
+            </button>
+            <span className="page-info">
+              Page {pagination.page} of {pagination.total_pages}
+            </span>
+            <button
+              className="page-button"
+              value={pagination.page + 1}
+              onClick={handlePageChange}
+              disabled={pagination.page === pagination.total_pages}
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
       <button className="logout" onClick={handleLogout}>
         Logout
