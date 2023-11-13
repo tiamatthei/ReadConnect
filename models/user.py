@@ -32,15 +32,15 @@ class User(UserMixin):
         cur.close()
         connection_pool.return_connection(conn)
         if row:
-            return User(*row)
+            return User(username=row[1], email=row[2], password=row[3], id=row[0])
         else:
             return None
 
-    def update(self):
+    def update_username(self):
         connection_pool = ConnectionPool()
         conn = connection_pool.get_connection()
         cur = conn.cursor()
-        cur.execute("UPDATE users SET username = %s, password = %s WHERE id = %s",
+        cur.execute("UPDATE users SET username = %s WHERE id = %s",
                     (self.username, self.id))
         conn.commit()
         cur.close()

@@ -70,6 +70,24 @@ class Book:
         return None
 
     @classmethod
+    def get_status(cls, id, user_id):
+        conn = connection_pool.get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT * FROM user_read_books WHERE user_id = %s AND book_id = %s", (user_id, id))
+        user_read_book = cursor.fetchone()
+        cursor.execute(
+            "SELECT * FROM user_wish_list WHERE user_id = %s AND book_id = %s", (user_id, id))
+        user_wish_list_book = cursor.fetchone()
+        cursor.close()
+        connection_pool.return_connection(conn)
+        data = {
+            'read': user_read_book is not None,
+            'wish': user_wish_list_book is not None
+        }
+        return data
+
+    @classmethod
     def search(cls, query=None, author=None, category=None, min_pages=None, max_pages=None, start_date=None, end_date=None, id_user=None):
         conn = connection_pool.get_connection()
         cursor = conn.cursor()
@@ -77,7 +95,16 @@ class Book:
         # Build the SQL query based on the provided parameters
         sql_query = """
         SELECT
-            b.id, b.title, b.page_count, TO_CHAR(b.published_date::DATE, 'dd/mm/yyyy'), b.short_description, b.long_description, b.status, c.name as categories, string_agg(a.name, '|') as authors, b.thumbnail_url
+            b.id,
+            b.title,
+            b.page_count,
+            TO_CHAR(b.published_date, 'DD/MM/YYYY') as formatted_published_date,
+            b.short_description,
+            b.long_description,
+            b.status,
+            string_agg(DISTINCT c.name, '|') as categories,
+            string_agg(DISTINCT a.name, '|') as authors,
+            b.thumbnail_url
         FROM books b
             JOIN book_authors ba ON b.id = ba.book_id
             JOIN authors a ON ba.author_id = a.id
@@ -99,7 +126,7 @@ class Book:
         if end_date:
             sql_query += f" AND b.publication_date <= '{end_date}'"
 
-        sql_query += " GROUP BY b.id, b.title, b.page_count, b.published_date, b.short_description, b.long_description, b.status, c.name"
+        sql_query += " GROUP BY b.id, b.title, b.page_count, b.published_date, b.short_description, b.long_description, b.status, b.thumbnail_url;"
         cursor.execute(sql_query)
         books = cursor.fetchall()
         cursor.close()
@@ -173,11 +200,11 @@ class Book:
         conn = connection_pool.get_connection()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT * FROM user_wishlist WHERE user_id = %s AND book_id = %s", (user_id, self.id))
-        user_wishlist = cursor.fetchone()
-        if not user_wishlist:
+            "SELECT * FROM user_wish_list WHERE user_id = %s AND book_id = %s", (user_id, self.id))
+        user_wish_list = cursor.fetchone()
+        if not user_wish_list:
             cursor.execute(
-                "INSERT INTO user_wishlist (user_id, book_id, added_date) VALUES (%s, %s, NOW())", (user_id, self.id))
+                "INSERT INTO user_wish_list (user_id, book_id, added_date) VALUES (%s, %s, NOW())", (user_id, self.id))
             conn.commit()
         cursor.close()
         connection_pool.return_connection(conn)
@@ -186,45 +213,111 @@ class Book:
         conn = connection_pool.get_connection()
         cursor = conn.cursor()
         cursor.execute(
-            "DELETE FROM user_wishlist WHERE user_id = %s AND book_id = %s", (user_id, self.id))
+            "DELETE FROM user_wish_list WHERE user_id = %s AND book_id = %s", (user_id, self.id))
         conn.commit()
         cursor.close()
         connection_pool.return_connection(conn)
 
-    def get_all_read_books(self, user_id):
+    @staticmethod
+    def get_all_read_books(user_id):
         conn = connection_pool.get_connection()
         cursor = conn.cursor()
         cursor.execute(
-            """SELECT * FROM user_read_books urb
-                JOIN books b ON urb.book_id = b.id
+            """SELECT
+                b.id,
+                b.title,
+                b.page_count,
+                TO_CHAR(b.published_date, 'DD/MM/YYYY') as formatted_published_date,
+                b.short_description,
+                b.long_description,
+                b.status,
+                string_agg(DISTINCT c.name, '|') as categories,
+                string_agg(DISTINCT a.name, '|') as authors,
+                b.thumbnail_url
+            FROM
+                books b
                 JOIN book_authors ba ON b.id = ba.book_id
                 JOIN authors a ON ba.author_id = a.id
                 JOIN book_categories bc ON b.id = bc.book_id
                 JOIN categories c ON bc.category_id = c.id
-            WHERE urb.user_id = %s
+                JOIN user_read_books urb ON urb.book_id = b.id
+            WHERE
+                urb.user_id = %s
+            GROUP BY
+                b.id,
+                b.title,
+                b.page_count,
+                b.published_date,
+                b.short_description,
+                b.long_description,
+                b.status,
+                b.thumbnail_url;
             """, (user_id,))
         user_read_books = cursor.fetchall()
         cursor.close()
         connection_pool.return_connection(conn)
-        return user_read_books
-    
-    def get_all_wishlist_books(self, user_id):
+        return [Book(id=book[0],
+                     title=book[1],
+                     authors=book[8],
+                     categories=book[7],
+                     publication_date=book[3],
+                     pages=book[2],
+                     short_description=book[4],
+                     long_description=book[5],
+                     thumbnail_url=book[9],
+                     read=True
+                     ) for book in user_read_books]
+
+    @staticmethod
+    def get_all_wishlist_books(user_id):
         conn = connection_pool.get_connection()
         cursor = conn.cursor()
         cursor.execute(
-            """SELECT * FROM user_wishlist uw
-                JOIN books b ON uw.book_id = b.id
+            """SELECT
+                b.id,
+                b.title,
+                b.page_count,
+                TO_CHAR(b.published_date, 'DD/MM/YYYY') as formatted_published_date,
+                b.short_description,
+                b.long_description,
+                b.status,
+                string_agg(DISTINCT c.name, '|') as categories,
+                string_agg(DISTINCT a.name, '|') as authors,
+                b.thumbnail_url
+            FROM
+                books b
                 JOIN book_authors ba ON b.id = ba.book_id
                 JOIN authors a ON ba.author_id = a.id
                 JOIN book_categories bc ON b.id = bc.book_id
                 JOIN categories c ON bc.category_id = c.id
-            WHERE uw.user_id = %s
+                JOIN user_wish_list uwl ON uwl.book_id = b.id
+            WHERE
+                uwl.user_id = %s
+            GROUP BY
+                b.id,
+                b.title,
+                b.page_count,
+                b.published_date,
+                b.short_description,
+                b.long_description,
+                b.status,
+                b.thumbnail_url;
             """, (user_id,))
-        user_wishlist_books = cursor.fetchall()
+        user_wish_list_books = cursor.fetchall()
         cursor.close()
         connection_pool.return_connection(conn)
-        return user_wishlist_books
-    
+        return [Book(id=book[0],
+                     title=book[1],
+                     authors=book[8],
+                     categories=book[7],
+                     publication_date=book[3],
+                     pages=book[2],
+                     short_description=book[4],
+                     long_description=book[5],
+                     thumbnail_url=book[9],
+                     wish_to_read=True
+                     ) for book in user_wish_list_books]
+
     def get_read_book(self, user_id):
         conn = connection_pool.get_connection()
         cursor = conn.cursor()
@@ -240,17 +333,17 @@ class Book:
         user_read_book = cursor.fetchone()
         cursor.close()
         connection_pool.return_connection(conn)
-        #if the book is not in the user_read_books table, return False, else 
+        # if the book is not in the user_read_books table, return False, else
         if not user_read_book:
             return False
         else:
             return True
-            
+
     def get_wishlist_book(self, user_id):
         conn = connection_pool.get_connection()
         cursor = conn.cursor()
         cursor.execute(
-            """SELECT * FROM user_wishlist uw
+            """SELECT * FROM user_wish_list uw
                 JOIN books b ON uw.book_id = b.id
                 JOIN book_authors ba ON b.id = ba.book_id
                 JOIN authors a ON ba.author_id = a.id
@@ -258,11 +351,11 @@ class Book:
                 JOIN categories c ON bc.category_id = c.id
             WHERE uw.user_id = %s AND uw.book_id = %s
             """, (user_id, self.id))
-        user_wishlist_book = cursor.fetchone()
+        user_wish_list_book = cursor.fetchone()
         cursor.close()
         connection_pool.return_connection(conn)
-        #if the book is not in the user_wishlist table, return False, else 
-        if not user_wishlist_book:
+        # if the book is not in the user_wish_list table, return False, else
+        if not user_wish_list_book:
             return False
         else:
             return True

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaHome, FaUser, FaUsers } from "react-icons/fa";
+import { FaHome, FaUser } from "react-icons/fa";
 import "./home.css";
 import { BookCard } from "../components/bookCard";
 
@@ -95,12 +95,6 @@ function Home({ handleLogout }) {
             <Link to="/perfil">
               <FaUser />
               <span>Perfil</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/usuarios">
-              <FaUsers />
-              <span>Usuarios</span>
             </Link>
           </li>
         </ul>

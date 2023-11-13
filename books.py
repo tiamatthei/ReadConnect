@@ -54,12 +54,20 @@ def get_book(book_id):
     book = Book.find_by_id(book_id)
     return jsonify(book)
 
+@books_bp.route('/books/<int:id>/check', methods=['POST'])
+def check_book(id):
+    # Verifica si el libro está read o wish
+    data = request.get_json()
+    book = Book.get_status(id, data['user_id'])
+    return jsonify(book)
+
 @books_bp.route('/books/<int:book_id>/read', methods=['POST'])
 def mark_book_as_read(book_id):
     # Marca el libro como leído en la base de datos
+    data = request.get_json()
     book = Book.find_by_id(book_id)
     if book:
-        book.mark_as_read()
+        book.mark_as_read(user_id=data['user_id'])
         return jsonify({'message': 'Libro marcado como leído.'})
     else:
         return jsonify({'message': 'Libro no encontrado.'}), 404
@@ -68,9 +76,10 @@ def mark_book_as_read(book_id):
 @books_bp.route('/books/<int:book_id>/wish', methods=['POST'])
 def add_book_to_wish_list(book_id):
     # Agrega el libro a la lista de libros por leer en la base de datos
+    data = request.get_json()
     book = Book.find_by_id(book_id)
     if book:
-        book.mark_as_wishlist()
+        book.mark_as_wishlist(user_id=data['user_id'])
         return jsonify({'message': 'Libro agregado a la lista de libros por leer.'})
     else:
         return jsonify({'message': 'Libro no encontrado.'}), 404
@@ -78,9 +87,10 @@ def add_book_to_wish_list(book_id):
 @books_bp.route('/books/<int:book_id>/read', methods=['DELETE'])
 def remove_book_from_read_list(book_id):
     # Elimina el libro de la lista de libros leídos en la base de datos
+    data = request.get_json()
     book = Book.find_by_id(book_id)
     if book:
-        book.mark_as_unread()
+        book.mark_as_unread(user_id=data['user_id'])
         return jsonify({'message': 'Libro eliminado de la lista de libros leídos.'})
     else:
         return jsonify({'message': 'Libro no encontrado.'}), 404
@@ -88,9 +98,10 @@ def remove_book_from_read_list(book_id):
 @books_bp.route('/books/<int:book_id>/wish', methods=['DELETE'])
 def remove_book_from_wish_list(book_id):
     # Elimina el libro de la lista de libros por leer en la base de datos
+    data = request.get_json()
     book = Book.find_by_id(book_id)
     if book:
-        book.mark_as_unwishlist()
+        book.mark_as_unwishlist(user_id=data['user_id'])
         return jsonify({'message': 'Libro eliminado de la lista de libros por leer.'})
     else:
         return jsonify({'message': 'Libro no encontrado.'}), 404

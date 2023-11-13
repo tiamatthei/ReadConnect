@@ -1,29 +1,7 @@
-import React, { useState } from "react";
-import BookList from "../components/BookList";
-import BookDetails from "../components/BookDetails";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaHome, FaUser, FaUsers } from "react-icons/fa";
 import "./perfil.css";
-
-async function uploadProfilePicture(file) {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("upload_preset", "readconnect");
-
-  try {
-    const response = await fetch(
-      "https://api.cloudinary.com/v1_1/readconnect/image/upload",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-    const data = await response.json();
-    return data.secure_url;
-  } catch (err) {
-    return console.log(err);
-  }
-}
 
 function Perfil({ handleLogout }) {
   //The user is logged in, so we can get the user from the local storage
@@ -34,15 +12,38 @@ function Perfil({ handleLogout }) {
   const [booksRead, setBooksRead] = useState([]);
   const [selectedBook, setSelectedBook] = useState(null);
 
-  const handleNameChange = (event) => {
-    setName(event.target.value);
-  };
+  //Here goes a function that fetches the user's books to read and books read
+  useEffect(() => {
+    const getBooks = async () => {
+      const result = await fetch(`/read_books/${user.id}`);
+      const data = await result.json();
+      setBooksRead(data.books);
+    };
+    getBooks();
+  }, []);
 
-  const handleProfilePictureChange = (event) => {
-    const file = event.target.files[0];
-    uploadProfilePicture(file).then((url) => {
-      setProfilePicture(url);
+  useEffect(() => {
+    const getBooks = async () => {
+      const result = await fetch(`/wish_books/${user.id}`);
+      const data = await result.json();
+      setBooksToRead(data.books);
+      console.log(data.books);
+    };
+    getBooks();
+  }, []);
+
+  const handleNameChange = async (event) => {
+    console.log(user.id);
+    const result = await fetch(`/change_name`, {
+      method: "PUT",
+      body: JSON.stringify({ username: name, id: user.id }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
+    const data = await result.json();
+    localStorage.setItem("user", JSON.stringify(data.data));
+    setName(data.data.username);
   };
 
   const handleBookAdd = (book, list) => {
@@ -85,12 +86,6 @@ function Perfil({ handleLogout }) {
               <span>Perfil</span>
             </Link>
           </li>
-          <li>
-            <Link to="/usuarios">
-              <FaUsers />
-              <span>Usuarios</span>
-            </Link>
-          </li>
         </ul>
       </nav>
       <div className="perfil">
@@ -101,39 +96,56 @@ function Perfil({ handleLogout }) {
             type="text"
             id="name"
             value={name}
-            onChange={handleNameChange}
+            onChange={(event) => setName(event.target.value)}
           />
-        </div>
-        <div className="perfil-picture">
-          <label htmlFor="profile-picture">Imagen de Perfil:</label>
-          <input
-            type="file"
-            id="profile-picture"
-            onChange={handleProfilePictureChange}
-          />
-          {profilePicture && <img src={profilePicture} alt="Profile" />}
+          <button
+            className="change-name"
+            type="button"
+            onClick={handleNameChange}
+          >
+            Cambiar nombre
+          </button>
         </div>
         <h2>Libros por Leer</h2>
-        <BookList
-          books={booksToRead}
-          onBookAdd={(book) => handleBookAdd(book, "toRead")}
-          onBookRemove={(book) => handleBookRemove(book, "toRead")}
-          onBookSelect={handleBookSelect}
-        />
+        <div className="books-to-read">
+          {booksToRead.map((book) => (
+            <div key={book.id} className="book-card">
+              <h3>{book.title}</h3>
+              <img
+                className="icon-image"
+                src={book.thumbnail_url}
+                alt={book.title}
+                onClick={() => handleBookSelect(book)}
+              />
+              <button
+                className="removefrom-button"
+                onClick={() => handleBookRemove(book, "toRead")}
+              >
+                Quitar de Lista de lectura
+              </button>
+            </div>
+          ))}
+        </div>
         <h2>Libros Leídos</h2>
-        <BookList
-          books={booksRead}
-          onBookAdd={(book) => handleBookAdd(book, "read")}
-          onBookRemove={(book) => handleBookRemove(book, "read")}
-          onBookSelect={handleBookSelect}
-        />
-        {selectedBook && (
-          <BookDetails book={selectedBook} onDeselect={handleBookDeselect} />
-        )}
-        <h2>Categorías Favoritas</h2>
-        {/* Display favorite categories */}
-        <h2>Autores Favoritos</h2>
-        {/* Display favorite authors */}
+        <div className="books-read">
+          {booksRead.map((book) => (
+            <div key={book.id} className="book-card">
+              <h3>{book.title}</h3>
+              <img
+                className="icon-image"
+                src={book.thumbnail_url}
+                alt={book.title}
+                onClick={() => handleBookSelect(book)}
+              />
+              <button
+                className="removefrom-button"
+                onClick={() => handleBookRemove(book, "read")}
+              >
+                Quitar de Lista de lectura
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
       <button className="logout" onClick={handleLogout}>
         Logout

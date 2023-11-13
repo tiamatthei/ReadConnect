@@ -3,29 +3,78 @@ import React, { useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 const BookCard = ({ book, handleSearch }) => {
-  
-  const addToWishlist = async (id) => {
-    const result = await fetch(`/books/${id}/wish`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await result.json();
-  };
-  const addToRead = async (id) => {
-    const result = await fetch(`/books/${id}/read`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await result.json();
-  };
-
   const [showDetails, setShowDetails] = useState(false);
   const [rating, setRating] = useState("");
   const [longDescription, setLongDescription] = useState(false);
+  const [isRead, setIsRead] = useState(false);
+  const [isWish, setIsWish] = useState(false);
+
+  const addToWishlist = async (id) => {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    const result = await fetch(`/books/${id}/wish`, {
+      method: "POST",
+      body: JSON.stringify({ user_id: userData.id }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await result.json();
+    setIsWish(true);
+  };
+
+  const removeFromWishlist = async (id) => {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    const result = await fetch(`/books/${id}/wish`, {
+      method: "DELETE",
+      body: JSON.stringify({ user_id: userData.id }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await result.json();
+    setIsWish(false);
+  };
+
+  const addToRead = async (id) => {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    const result = await fetch(`/books/${id}/read`, {
+      method: "POST",
+      body: JSON.stringify({ user_id: userData.id }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await result.json();
+    setIsRead(true);
+  };
+
+  const removeFromRead = async (id) => {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    const result = await fetch(`/books/${id}/read`, {
+      method: "DELETE",
+      body: JSON.stringify({ user_id: userData.id }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await result.json();
+    setIsRead(false);
+  };
+
+  const checkReadAndWish = async (id) => {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    const result = await fetch(`/books/${id}/check`, {
+      method: "POST",
+      body: JSON.stringify({ user_id: userData.id }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await result.json();
+    setIsRead(data.read);
+    setIsWish(data.wish);
+    console.log(data);
+  };
 
   const handleRating = (e) => {
     setRating(e.target.value);
@@ -52,7 +101,7 @@ const BookCard = ({ book, handleSearch }) => {
         <h2
           className="title"
           onClick={() => {
-            setShowDetails(!showDetails);
+            checkReadAndWish(book.id).then(() => setShowDetails(!showDetails));
           }}
         >
           {book.title}
@@ -77,18 +126,38 @@ const BookCard = ({ book, handleSearch }) => {
           //show buttons to allow to add to reading list, already read list, and wishlist
           showDetails ? (
             <div>
-              <button
-                className="addto-button"
-                onClick={() => addToWishlist(book.id)}
-              >
-                Añadir a Lista de lectura
-              </button>
-              <button
-                className="addto-button"
-                onClick={() => addToRead(book.id)}
-              >
-                Añadir a leídos
-              </button>
+              {!isWish ? (
+                <button
+                  className="addto-button"
+                  onClick={() => addToWishlist(book.id)}
+                >
+                  Añadir a Lista de lectura
+                </button>
+              ) : (
+                //This book is already in your wishlist, show a button to remove it
+                <button
+                  className="removefrom-button"
+                  onClick={() => removeFromWishlist(book.id)}
+                >
+                  Quitar de Lista de lectura
+                </button>
+              )}
+              {!isRead ? (
+                <button
+                  className="addto-button"
+                  onClick={() => addToRead(book.id)}
+                >
+                  Añadir a leídos
+                </button>
+              ) : (
+                //This book is already in your read list, show a button to remove it
+                <button
+                  className="removefrom-button"
+                  onClick={() => removeFromRead(book.id)}
+                >
+                  Quitar de leídos
+                </button>
+              )}
             </div>
           ) : null
         }

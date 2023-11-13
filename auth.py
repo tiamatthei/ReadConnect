@@ -44,10 +44,12 @@ def login():
         return jsonify({'message': 'Inicio de sesión fallido. Verifica tus credenciales.', "success": False}), 401
 
 
-@auth_bp.route('/profile')
-@login_required
-def profile():
-    return jsonify({'message': 'Bienvenido, {}'.format(current_user.username)}), 200
+@auth_bp.route('/change_name', methods=['PUT'])
+def change_name():
+    user = User.read(id=request.json.get('id'))
+    user.username = request.json.get('username')
+    user.update_username()
+    return jsonify({'message': 'Nombre de usuario actualizado exitosamente.', "data": user.to_dict()}), 200
 
 
 @auth_bp.route('/logout')
