@@ -1,7 +1,7 @@
 from flask import Flask, redirect, session, render_template
 
 # Flask app setup
-app = app = Flask()
+app = Flask(__name__)
 app.secret_key = 'secret'
 
 # Blueprints
