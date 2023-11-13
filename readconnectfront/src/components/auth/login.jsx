@@ -5,7 +5,6 @@ const Login = ({ onLoginSuccess }) => {
   const [loginEmail, setLoginEmail] = React.useState(""); // Declare new state variable for login email
   const [loginPassword, setLoginPassword] = React.useState(""); // Declare new state variable for login password
   const [isLoading, setIsLoading] = React.useState(false); // Declare new state variable for loading status
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false); // Declare new state variable for login status
 
   const navigate = useNavigate();
 
@@ -26,9 +25,7 @@ const Login = ({ onLoginSuccess }) => {
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          // Set isLoggedIn to true and isLoading to false
           setIsLoading(false);
-          setIsLoggedIn(true);
           onLoginSuccess(data.user);
           //set the user in the local storage
           localStorage.setItem("user", JSON.stringify(data.user));

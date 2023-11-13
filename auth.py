@@ -28,7 +28,7 @@ def register():
     user = User(username=username, email=email, password=hashed_password)
     user.create(username=username, email=email, password=hashed_password)
 
-    return jsonify({'message': 'Usuario registrado con éxito.'}), 201
+    return jsonify({'message': 'Usuario registrado con éxito.', "success": True, "user": user.to_dict()}), 201
 
 
 @auth_bp.route('/login', methods=['POST'])
