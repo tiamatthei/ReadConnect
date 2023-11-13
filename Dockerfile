@@ -1,6 +1,16 @@
 # Use the official Python image as the base image
 FROM python:3.8-slim
 
+# Update pip to the latest version
+RUN pip install --upgrade pip
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 # Set the working directory
 WORKDIR /app
 
