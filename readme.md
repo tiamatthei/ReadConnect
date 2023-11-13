@@ -1,4 +1,4 @@
-# Nombre de la aplicación
+# ReadConnect by Jorge Bejarano
 
 ## Descripción
 Esta aplicación es una aplicación web desarrollada con React y Flask que permite a los usuarios leer y conectarse con otros usuarios. Fue desarrollada por Jorge Bejarano para la empresa Microsystem. La aplicación utiliza Node.js y Python 3.x, junto con Flask y otras dependencias. Para instalar y utilizar la aplicación, siga las instrucciones en la sección de requisitos e instalación.
