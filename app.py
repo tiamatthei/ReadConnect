@@ -1,7 +1,7 @@
 from flask import Flask, redirect, session, render_template
 
 # Flask app setup
-app = Flask(__name__)
+app = app = Flask()
 app.secret_key = 'secret'
 
 # Blueprints
@@ -17,11 +17,8 @@ app.register_blueprint(books_bp)
 # Routes
 @app.route('/')
 def home():
-    if 'user' in session:
-        return redirect('/home')
-    else:
-        return redirect('/login')
-    
+    return app.send_static_file('index.html')
+
 
 def main():
     app.run(host='0.0.0.0')
