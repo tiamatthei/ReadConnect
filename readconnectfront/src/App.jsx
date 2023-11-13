@@ -19,6 +19,13 @@ function App() {
     }
   }, []);
 
+  function handleLogout() {
+    setIsLogin(false);
+    sessionStorage.removeItem("user");
+    // redirect to login page
+    return <Navigate to="/login" />;
+  }
+
   return (
     <BrowserRouter>
         <Routes>
@@ -37,8 +44,8 @@ function App() {
               </div>
             }
           />
-          <Route path="/home" element={<Home />} />
-          <Route path="/perfil" element={<Perfil />} />
+          <Route path="/home" element={<Home handleLogout={handleLogout} />} />
+          <Route path="/perfil" element={<Perfil handleLogout={handleLogout}/>} />
         </Routes>
     </BrowserRouter>
   );
