@@ -1,7 +1,7 @@
 from flask import Flask, redirect, session, render_template
 
 # Flask app setup
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/')
 app.secret_key = 'secret'
 
 # Blueprints
